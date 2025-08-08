@@ -2,6 +2,30 @@
 
 A chrome extension that enhances the Slack web app with additional features.
 
+## Install
+
+> **Note:** Google Chrome requires a $5 developer fee to publish extensions. I'm not paying them 😄 so you'll need to install this manually!
+
+1. Clone this repository:
+   ```sh
+   git clone https://github.com/imranbarbhuiya/slack-extended.git
+   cd slack-extended
+   ```
+2. Install dependencies:
+   ```sh
+   pnpm i
+   ```
+3. Build the extension:
+   ```sh
+   pnpm build
+   ```
+4. Open Chrome and go to the Extensions menu (`chrome://extensions/`).
+5. Enable "Developer mode" (toggle in the top right).
+   ![dev mode](./images/devmode.png)
+6. Click "Load unpacked" and select the `build/chrome-mv3-prod` folder from the cloned repository.
+   ![load](./images/load.png)
+7. Enjoy!
+
 ## Features
 
 1. Reply Button: Adds a reply button to each message for quick replies.
