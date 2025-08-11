@@ -28,6 +28,9 @@ A chrome extension that enhances the Slack web app with additional features.
 
 ## Features
 
+> **Note:** You must have `Format messages with markup` enabled in Slack settings.
+> Click on your profile picture in the bottom left corner, go to `Preferences`, then `Advanced`, and enable `Format messages with markup`.
+
 1. Reply Button: Adds a reply button to each message for quick replies.
 2. Copy Button: Adds a copy button to each message for easy copying the message text with markdown formatting.
 3. Hide forms and always show input box.
