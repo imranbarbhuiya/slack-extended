@@ -3,5 +3,4 @@ export const DEFAULT_SETTINGS = {
 	enableCopyButton: true,
 	enableSkipForm: false,
 	replyFormat: 'codeblock' as 'quote' | 'codeblock',
-	debugMode: false,
 };

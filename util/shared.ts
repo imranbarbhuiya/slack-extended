@@ -81,6 +81,7 @@ export function sanitizeMessageText(raw: string) {
 	t = t.replace(/\s*\(edited\)\s*$/gm, '');
 	t = t.replace(/\s*\(edited\)\s*/g, ' ');
 	t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+	t = t.replace(/GIF https/g, ' https');
 	return t.trim();
 }
 

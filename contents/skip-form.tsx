@@ -22,6 +22,6 @@ export default function SkipForm() {
 		});
 		observer.observe(document.body, { childList: true, subtree: true });
 		return () => observer.disconnect();
-	}, []);
+	}, [enableSkipForm]);
 	return null;
 }
