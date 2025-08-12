@@ -35,27 +35,23 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'c
 
 		const maxLineLength = 100;
 
-		const lines = fullText.trim().split(/\r?\n/);
-		if (!lines.length) return;
+		let line = fullText.trim().split(/\r?\n/).join(' ');
+		if (!line.length) return;
 
-		let firstLine = lines[0];
-		if (firstLine.length > maxLineLength) {
-			firstLine = firstLine.substring(0, maxLineLength) + '...';
+		if (line.length > maxLineLength) {
+			line = line.slice(0, maxLineLength) + '...';
 		}
 
 		if (replyFormat === 'codeblock') {
 			insertIntoComposer('▸ Replying to ', contextElement);
 			await createMentionEntity(displayName, userId, contextElement);
 			insertIntoComposer(':\n```\n', contextElement);
-			insertIntoComposer(firstLine, contextElement);
+			insertIntoComposer(line, contextElement);
 			insertIntoComposer('\n```\n\n', contextElement);
 		} else {
 			insertIntoComposer('> ', contextElement);
 			await createMentionEntity(displayName, userId, contextElement);
-			insertIntoComposer(firstLine + '\n', contextElement);
-			for (let i = 1; i < lines.length; i++) {
-				insertIntoComposer('> ' + lines[i] + '\n', contextElement);
-			}
+			insertIntoComposer(line + '\n', contextElement);
 			insertIntoComposer('\n', contextElement);
 		}
 	} catch {}
