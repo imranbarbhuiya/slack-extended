@@ -12,6 +12,7 @@ export const SELECTORS = {
 
 export const ATTR = {
 	replyButtonQa: 'slack-extended-reply',
+	copyButtonQa: 'slack-extended-copy',
 };
 
 const NAME_TO_ID = new Map<string, string>();

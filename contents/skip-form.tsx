@@ -1,7 +1,15 @@
 import { useEffect } from 'react';
 
-const SkipForm = () => {
+import { useStorage } from '@plasmohq/storage/hook';
+
+import { DEFAULT_SETTINGS } from '~util/settings';
+
+export default function SkipForm() {
+	const [enableSkipForm] = useStorage<boolean>('enableSkipForm', DEFAULT_SETTINGS.enableSkipForm);
+
 	useEffect(() => {
+		if (!enableSkipForm) return;
+
 		const clickButton = () => {
 			const btn = document.querySelector<HTMLButtonElement>('.sendMessageBtn__xNfhN');
 			if (btn) {
@@ -16,6 +24,4 @@ const SkipForm = () => {
 		return () => observer.disconnect();
 	}, []);
 	return null;
-};
-
-export default SkipForm;
+}

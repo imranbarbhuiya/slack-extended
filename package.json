@@ -1,32 +1,34 @@
 {
-  "name": "slack-extended",
-  "displayName": "Slack extended",
-  "version": "0.0.1",
-  "description": "A chrome extension to add additional features to slack",
-  "author": "Parbez <imranbarbhuiya.fsd@gmail.com>",
-  "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build",
-    "package": "plasmo package"
-  },
-  "dependencies": {
-    "plasmo": "0.90.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
-  },
-  "devDependencies": {
-    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
-    "@types/chrome": "0.0.258",
-    "@types/node": "20.11.5",
-    "@types/react": "18.2.48",
-    "@types/react-dom": "18.2.18",
-    "prettier": "3.2.4",
-    "typescript": "5.3.3"
-  },
-  "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ]
-  },
-  "packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
+	"name": "slack-extended",
+	"displayName": "Slack extended",
+	"version": "0.0.1",
+	"description": "A chrome extension to add additional features to slack",
+	"author": "Parbez <imranbarbhuiya.fsd@gmail.com>",
+	"scripts": {
+		"dev": "plasmo dev",
+		"build": "plasmo build",
+		"package": "plasmo package"
+	},
+	"dependencies": {
+		"@plasmohq/storage": "^1.15.0",
+		"plasmo": "0.90.5",
+		"react": "18.2.0",
+		"react-dom": "18.2.0"
+	},
+	"devDependencies": {
+		"@ianvs/prettier-plugin-sort-imports": "4.1.1",
+		"@types/chrome": "0.0.258",
+		"@types/node": "20.11.5",
+		"@types/react": "18.2.48",
+		"@types/react-dom": "18.2.18",
+		"prettier": "3.2.4",
+		"typescript": "5.3.3"
+	},
+	"manifest": {
+		"host_permissions": [
+			"https://app.slack.com/*",
+			"https://*.slack.com/*"
+		]
+	},
+	"packageManager": "pnpm@10.14.0+sha512.ad27a79641b49c3e481a16a805baa71817a04bbe06a38d17e60e2eaee83f6a146c6a688125f5792e48dd5ba30e7da52a5cda4c3992b9ccf333f9ce223af84748"
 }
