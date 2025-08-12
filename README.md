@@ -1,6 +1,8 @@
 # Slack Extended
 
 A chrome extension that enhances the Slack web app with additional features.
+![alt text](/.github/demo.png)
+![alt text](/.github/popup.png)
 
 ## Install
 
@@ -34,6 +36,15 @@ A chrome extension that enhances the Slack web app with additional features.
 1. Reply Button: Adds a reply button to each message for quick replies.
 2. Copy Button: Adds a copy button to each message for easy copying the message text with markdown formatting.
 3. Hide forms and always show input box.
+
+All these features can be toggled on or off in the extension's popup menu.
+
+There are 2 types of reply ui:
+
+1. Quote reply:
+   ![alt text](/.github/quote.png)
+2. Codeblock reply:
+   ![alt text](/.github/codeblock.png)
 
 ## Acknowledgements
 

@@ -33,25 +33,26 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'c
 		if (!fullText) return;
 		const contextElement = messageEl;
 
+		const maxLineLength = 100;
+
+		const lines = fullText.trim().split(/\r?\n/);
+		if (!lines.length) return;
+
+		let firstLine = lines[0];
+		if (firstLine.length > maxLineLength) {
+			firstLine = firstLine.substring(0, maxLineLength) + '...';
+		}
+
 		if (replyFormat === 'codeblock') {
 			insertIntoComposer('▸ Replying to ', contextElement);
 			await createMentionEntity(displayName, userId, contextElement);
 			insertIntoComposer(':\n```\n', contextElement);
-			insertIntoComposer(fullText.trim(), contextElement);
+			insertIntoComposer(firstLine, contextElement);
 			insertIntoComposer('\n```\n\n', contextElement);
 		} else {
-			const lines = fullText.trim().split(/\r?\n/);
-			if (!lines.length) return;
-
-			const maxLineLength = 100;
-			let firstLine = lines[0];
-			if (firstLine.length > maxLineLength) {
-				firstLine = firstLine.substring(0, maxLineLength) + '...';
-			}
-
-			insertIntoComposer('▸ Replying to ', contextElement);
+			insertIntoComposer('> ', contextElement);
 			await createMentionEntity(displayName, userId, contextElement);
-			insertIntoComposer(':\n> ' + firstLine + '\n', contextElement);
+			insertIntoComposer(firstLine + '\n', contextElement);
 			for (let i = 1; i < lines.length; i++) {
 				insertIntoComposer('> ' + lines[i] + '\n', contextElement);
 			}
