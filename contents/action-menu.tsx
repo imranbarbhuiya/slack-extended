@@ -2,6 +2,9 @@ import type { PlasmoCSConfig } from 'plasmo';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { useStorage } from '@plasmohq/storage/hook';
+
+import { DEFAULT_SETTINGS } from '../util/settings';
 import {
 	ATTR,
 	createMentionEntity,
@@ -19,7 +22,7 @@ export const config: PlasmoCSConfig = {
 	run_at: 'document_idle',
 };
 
-async function handleReplyClick(actionsGroup: Element) {
+async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'codeblock') {
 	try {
 		const messageEl = findClosestMessageContainer(actionsGroup);
 		if (!messageEl) return;
@@ -28,16 +31,32 @@ async function handleReplyClick(actionsGroup: Element) {
 		const selected = readSelectedTextWithin(messageEl);
 		const fullText = selected || readMessageText(messageEl);
 		if (!fullText) return;
-		const lines = fullText.trim().split(/\r?\n/);
-		if (!lines.length) return;
 		const contextElement = messageEl;
-		insertIntoComposer('> ', contextElement);
-		await createMentionEntity(displayName, userId, contextElement);
-		insertIntoComposer(' ' + lines[0] + '\n', contextElement);
-		for (let i = 1; i < lines.length; i++) {
-			insertIntoComposer('> ' + lines[i] + '\n', contextElement);
+
+		if (replyFormat === 'codeblock') {
+			insertIntoComposer('▸ Replying to ', contextElement);
+			await createMentionEntity(displayName, userId, contextElement);
+			insertIntoComposer(':\n```\n', contextElement);
+			insertIntoComposer(fullText.trim(), contextElement);
+			insertIntoComposer('\n```\n\n', contextElement);
+		} else {
+			const lines = fullText.trim().split(/\r?\n/);
+			if (!lines.length) return;
+
+			const maxLineLength = 100;
+			let firstLine = lines[0];
+			if (firstLine.length > maxLineLength) {
+				firstLine = firstLine.substring(0, maxLineLength) + '...';
+			}
+
+			insertIntoComposer('▸ Replying to ', contextElement);
+			await createMentionEntity(displayName, userId, contextElement);
+			insertIntoComposer(':\n> ' + firstLine + '\n', contextElement);
+			for (let i = 1; i < lines.length; i++) {
+				insertIntoComposer('> ' + lines[i] + '\n', contextElement);
+			}
+			insertIntoComposer('\n', contextElement);
 		}
-		insertIntoComposer('\n', contextElement);
 	} catch {}
 }
 
@@ -80,11 +99,12 @@ function CopyButton({ onClick }: { onClick: () => void }) {
 		const timeout = setTimeout(() => setCopied(false), 1200);
 		return () => clearTimeout(timeout);
 	}, [copied]);
+
 	return (
 		<button
 			className="c-button-unstyled c-icon_button c-icon_button--size_small c-message_actions__button c-icon_button--default"
 			style={copied ? { color: '#2eb67d', transition: 'color 0.2s' } : { cursor: 'pointer' }}
-			data-qa="slack-extended-copy"
+			data-qa={ATTR.copyButtonQa}
 			aria-label={copied ? 'Copied!' : 'Copy message'}
 			title={copied ? 'Copied!' : 'Copy message'}
 			type="button"
@@ -121,24 +141,26 @@ function handleCopyClick(actionsGroup: Element) {
 	navigator.clipboard.writeText(fullText);
 }
 
-function MessageActions({ actionsGroup }: { actionsGroup: Element }) {
-	return (
-		<>
-			<ReplyButton onClick={() => handleReplyClick(actionsGroup)} />
-			<CopyButton onClick={() => handleCopyClick(actionsGroup)} />
-		</>
-	);
-}
-
-function injectReactReplyButton(actionsGroup: Element) {
+function injectReactReplyButton(
+	actionsGroup: Element,
+	enableReplyButton: boolean,
+	enableCopyButton: boolean,
+	replyFormat: 'quote' | 'codeblock',
+) {
 	if (!actionsGroup || !isElement(actionsGroup)) return;
-	const existing = actionsGroup.querySelector(`[data-qa="${ATTR.replyButtonQa}"]`);
-	const existingCopy = actionsGroup.querySelector('[data-qa="slack-extended-copy"]');
-	if (existing && existingCopy) return;
+	if (!enableReplyButton && !enableCopyButton) return;
+	const existingReply = actionsGroup.querySelector(`[data-qa="${ATTR.replyButtonQa}"]`);
+	const existingCopy = actionsGroup.querySelector(`[data-qa="${ATTR.copyButtonQa}"]`);
+
+	const replyExists = !enableReplyButton || !!existingReply;
+	const copyExists = !enableCopyButton || !!existingCopy;
+	if (replyExists && copyExists) return;
 	const prevContainers = actionsGroup.querySelectorAll('span[data-slack-extended-reply-container]');
 	prevContainers.forEach((el) => el.remove());
 	const btnContainer = document.createElement('span');
 	btnContainer.setAttribute('data-slack-extended-reply-container', 'true');
+	btnContainer.style.display = 'inline-flex';
+	btnContainer.style.alignItems = 'center';
 	const lastButton = actionsGroup.lastElementChild;
 	if (lastButton) {
 		actionsGroup.insertBefore(btnContainer, lastButton);
@@ -146,40 +168,56 @@ function injectReactReplyButton(actionsGroup: Element) {
 		actionsGroup.appendChild(btnContainer);
 	}
 	const root = createRoot(btnContainer);
-	root.render(<MessageActions actionsGroup={actionsGroup} />);
+	root.render(
+		<>
+			{enableReplyButton && <ReplyButton onClick={() => handleReplyClick(actionsGroup, replyFormat)} />}
+			{enableCopyButton && <CopyButton onClick={() => handleCopyClick(actionsGroup)} />}
+		</>,
+	);
 }
 
-function scanInitial() {
+function scanInitial(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: 'quote' | 'codeblock') {
 	const groups = document.querySelectorAll(SELECTORS.actionsGroup);
-	groups.forEach(injectReactReplyButton);
+	groups.forEach((group) => injectReactReplyButton(group, enableReplyButton, enableCopyButton, replyFormat));
 }
 
-const handleMutations = (mutations: MutationRecord[]) => {
-	for (const m of mutations) {
-		if (!m.addedNodes || m.addedNodes.length === 0) continue;
-		for (const node of m.addedNodes) {
-			if (!isElement(node)) continue;
-			const el = node as Element;
-			if (el.matches && el.matches(SELECTORS.actionsGroup)) {
-				injectReactReplyButton(el);
+function makeHandleMutations(
+	enableReplyButton: boolean,
+	enableCopyButton: boolean,
+	replyFormat: 'quote' | 'codeblock',
+) {
+	return (mutations: MutationRecord[]) => {
+		for (const m of mutations) {
+			if (!m.addedNodes || m.addedNodes.length === 0) continue;
+			for (const node of m.addedNodes) {
+				if (!isElement(node)) continue;
+				const el = node as Element;
+				if (el.matches && el.matches(SELECTORS.actionsGroup)) {
+					injectReactReplyButton(el, enableReplyButton, enableCopyButton, replyFormat);
+				}
+				const nested = el.querySelectorAll ? el.querySelectorAll(SELECTORS.actionsGroup) : null;
+				nested?.forEach((g) => injectReactReplyButton(g, enableReplyButton, enableCopyButton, replyFormat));
 			}
-			const nested = el.querySelectorAll ? el.querySelectorAll(SELECTORS.actionsGroup) : [];
-			nested.forEach(injectReactReplyButton);
 		}
-	}
-};
+	};
+}
 
-function startObserver() {
-	const obs = new MutationObserver(handleMutations);
+function startObserver(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: 'quote' | 'codeblock') {
+	const obs = new MutationObserver(makeHandleMutations(enableReplyButton, enableCopyButton, replyFormat));
 	obs.observe(document.documentElement, { childList: true, subtree: true });
 }
 
-function ensureReplySoonForMessage(messageEl: Element) {
+function ensureReplySoonForMessage(
+	messageEl: Element,
+	enableReplyButton: boolean,
+	enableCopyButton: boolean,
+	replyFormat: 'quote' | 'codeblock',
+) {
 	let attempts = 8;
 	function tick() {
 		const group = messageEl.querySelector(SELECTORS.actionsGroup);
 		if (group) {
-			injectReactReplyButton(group);
+			injectReactReplyButton(group, enableReplyButton, enableCopyButton, replyFormat);
 			return;
 		}
 		if (attempts-- > 0) {
@@ -189,18 +227,32 @@ function ensureReplySoonForMessage(messageEl: Element) {
 	tick();
 }
 
-document.addEventListener(
-	'mouseenter',
-	(e) => {
-		const target = e.target as Element;
-		if (!(target instanceof Element)) return;
-		const message = target.closest(SELECTORS.messageContainer);
-		if (message) ensureReplySoonForMessage(message);
-	},
-	true,
-);
+export default function ActionMenuExtended() {
+	const [enableReplyButton] = useStorage<boolean>('enableReplyButton', DEFAULT_SETTINGS.enableReplyButton);
+	const [enableCopyButton] = useStorage<boolean>('enableCopyButton', DEFAULT_SETTINGS.enableCopyButton);
+	const [replyFormat] = useStorage<'quote' | 'codeblock'>('replyFormat', DEFAULT_SETTINGS.replyFormat);
 
-scanInitial();
-startObserver();
+	useEffect(() => {
+		if (!enableReplyButton && !enableCopyButton) return;
 
-export {};
+		const mouseHandler = (e: Event) => {
+			const target = e.target as Element;
+			if (
+				!(target instanceof Element) ||
+				target.closest(`[data-qa="${ATTR.replyButtonQa}"], [data-qa="${ATTR.copyButtonQa}"]`) ||
+				target.closest('span[data-slack-extended-reply-container]')
+			)
+				return;
+
+			const message = target.closest(SELECTORS.messageContainer);
+			if (message) ensureReplySoonForMessage(message, enableReplyButton, enableCopyButton, replyFormat);
+		};
+		document.addEventListener('mouseenter', mouseHandler, true);
+		scanInitial(enableReplyButton, enableCopyButton, replyFormat);
+		startObserver(enableReplyButton, enableCopyButton, replyFormat);
+
+		return () => {
+			document.removeEventListener('mouseenter', mouseHandler, true);
+		};
+	}, [enableReplyButton, enableCopyButton, replyFormat]);
+}
