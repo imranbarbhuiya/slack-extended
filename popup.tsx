@@ -16,7 +16,14 @@ function App() {
 		DEFAULT_SETTINGS.enableCopyButton,
 	);
 	const [enableSkipForm, setEnableSkipForm] = useStorage<boolean>('enableSkipForm', DEFAULT_SETTINGS.enableSkipForm);
-	const [replyFormat, setReplyFormat] = useStorage<'quote' | 'codeblock'>('replyFormat', DEFAULT_SETTINGS.replyFormat);
+	const [replyFormat, setReplyFormat] = useStorage<'quote' | 'codeblock' | 'link'>(
+		'replyFormat',
+		DEFAULT_SETTINGS.replyFormat,
+	);
+	const [moveReplyToTop, setMoveReplyToTop] = useStorage<boolean>(
+		'moveReplyToTop',
+		DEFAULT_SETTINGS.moveReplyToTop ?? false,
+	);
 	const [saving, setSaving] = useStorage<boolean>('saving', false);
 
 	const resetSettings = async () => {
@@ -27,6 +34,7 @@ function App() {
 			void setEnableCopyButton(DEFAULT_SETTINGS.enableCopyButton);
 			void setEnableSkipForm(DEFAULT_SETTINGS.enableSkipForm);
 			void setReplyFormat(DEFAULT_SETTINGS.replyFormat);
+			void setMoveReplyToTop(DEFAULT_SETTINGS.moveReplyToTop ?? false);
 		} catch (error) {
 			console.error('Failed to reset settings:', error);
 		} finally {
@@ -112,8 +120,35 @@ function App() {
 									<span className="radio-label">Codeblock Reply</span>
 								</label>
 								<p className="setting-description">Format replies with a code block</p>
+								<label className="radio">
+									<input
+										checked={replyFormat === 'link'}
+										disabled={saving}
+										name="replyFormat"
+										onChange={(e) => setReplyFormat(e.target.value as 'link')}
+										type="radio"
+										value="link"
+									/>
+									<span className="radio-label">Link Embed Reply</span>
+								</label>
+								<p className="setting-description">Format replies as a Slack embed with a link</p>
 							</div>
 						</div>
+						{replyFormat === 'link' && (
+							<div className="setting">
+								<label className="toggle">
+									<input
+										checked={moveReplyToTop}
+										disabled={saving}
+										onChange={(e) => setMoveReplyToTop(e.target.checked)}
+										type="checkbox"
+									/>
+									<span className="toggle-slider"></span>
+									<span className="toggle-label">Move Reply To Top</span>
+								</label>
+								<p className="setting-description">Show the link embed at the top of the reply</p>
+							</div>
+						)}
 					</div>
 				)}
 			</div>

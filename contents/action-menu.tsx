@@ -2,12 +2,13 @@ import { useStorage } from '@plasmohq/storage/hook';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { DEFAULT_SETTINGS } from '../util/settings';
+import { DEFAULT_SETTINGS, type MentionType } from '../util/settings';
 import {
 	ATTR,
 	createMentionEntity,
 	findClosestMessageContainer,
 	getAuthorInfo,
+	getPermalink,
 	insertIntoComposer,
 	isElement,
 	readMessageText,
@@ -22,7 +23,7 @@ export const config: PlasmoCSConfig = {
 	run_at: 'document_idle',
 };
 
-async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'codeblock') {
+async function handleReplyClick(actionsGroup: Element, replyFormat: MentionType) {
 	try {
 		const messageEl = findClosestMessageContainer(actionsGroup);
 		if (!messageEl) return;
@@ -40,7 +41,10 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'c
 
 		if (line.length > maxLineLength) line = line.slice(0, maxLineLength) + '...';
 
-		if (replyFormat === 'codeblock') {
+		if (replyFormat === 'link') {
+			const permalink = getPermalink(messageEl);
+			insertIntoComposer(`▸ [Reply to](${permalink}) @${displayName}\n`, contextElement);
+		} else if (replyFormat === 'codeblock') {
 			insertIntoComposer('▸ Replying to ', contextElement);
 			await createMentionEntity(displayName, userId, contextElement);
 			insertIntoComposer(':\n```\n', contextElement);
@@ -140,7 +144,7 @@ function injectReactReplyButton(
 	actionsGroup: Element,
 	enableReplyButton: boolean,
 	enableCopyButton: boolean,
-	replyFormat: 'quote' | 'codeblock',
+	replyFormat: MentionType,
 ) {
 	if (!actionsGroup || !isElement(actionsGroup)) return;
 	if (!enableReplyButton && !enableCopyButton) return;
@@ -169,16 +173,12 @@ function injectReactReplyButton(
 	);
 }
 
-function scanInitial(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: 'quote' | 'codeblock') {
+function scanInitial(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: MentionType) {
 	const groups = document.querySelectorAll(SELECTORS.actionsGroup);
 	for (const group of groups) injectReactReplyButton(group, enableReplyButton, enableCopyButton, replyFormat);
 }
 
-function makeHandleMutations(
-	enableReplyButton: boolean,
-	enableCopyButton: boolean,
-	replyFormat: 'quote' | 'codeblock',
-) {
+function makeHandleMutations(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: MentionType) {
 	return (mutations: MutationRecord[]) => {
 		for (const m of mutations) {
 			if (!m.addedNodes?.length) continue;
@@ -196,7 +196,7 @@ function makeHandleMutations(
 	};
 }
 
-function startObserver(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: 'quote' | 'codeblock') {
+function startObserver(enableReplyButton: boolean, enableCopyButton: boolean, replyFormat: MentionType) {
 	const obs = new MutationObserver(makeHandleMutations(enableReplyButton, enableCopyButton, replyFormat));
 	obs.observe(document.documentElement, { childList: true, subtree: true });
 }
@@ -205,7 +205,7 @@ function ensureReplySoonForMessage(
 	messageEl: Element,
 	enableReplyButton: boolean,
 	enableCopyButton: boolean,
-	replyFormat: 'quote' | 'codeblock',
+	replyFormat: MentionType,
 ) {
 	let attempts = 8;
 	function tick() {
@@ -222,7 +222,7 @@ function ensureReplySoonForMessage(
 export default function ActionMenuExtended() {
 	const [enableReplyButton] = useStorage<boolean>('enableReplyButton', DEFAULT_SETTINGS.enableReplyButton);
 	const [enableCopyButton] = useStorage<boolean>('enableCopyButton', DEFAULT_SETTINGS.enableCopyButton);
-	const [replyFormat] = useStorage<'quote' | 'codeblock'>('replyFormat', DEFAULT_SETTINGS.replyFormat);
+	const [replyFormat] = useStorage<MentionType>('replyFormat', DEFAULT_SETTINGS.replyFormat);
 
 	useEffect(() => {
 		if (!enableReplyButton && !enableCopyButton) return;

@@ -49,6 +49,11 @@ export function getAuthorInfo(messageEl: Element | null) {
 	return { userId, name };
 }
 
+export function getPermalink(containerEl: Element): string {
+	const link = containerEl.querySelector('a.c-link.c-timestamp');
+	return (link && (link as HTMLAnchorElement).href) ?? '';
+}
+
 export function readSelectedTextWithin(containerEl: Element) {
 	try {
 		const sel = window.getSelection();
