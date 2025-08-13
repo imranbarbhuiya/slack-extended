@@ -6,7 +6,11 @@ A chrome extension that enhances the Slack web app with additional features.
 
 ## Install
 
-> **Note:** Google Chrome requires a $5 developer fee to publish extensions. I'm not paying them 😄 so you'll need to install this manually!
+You can one click install the extension from the [Chrome Web Store](https://chrome.google.com/webstore/detail/slack-extended/nfpkgencphfibchjlcfkgikamdiekepp).
+
+### Manual Installation
+
+If you prefer to install the extension by building it from source, follow these steps:
 
 1. Clone this repository:
    ```sh
