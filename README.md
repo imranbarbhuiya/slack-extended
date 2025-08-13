@@ -1,7 +1,7 @@
 # Slack Extended
 
 A chrome extension that enhances the Slack web app with additional features.
-![alt text](/.github/demo.png)
+![alt text](/.github/quote.png)
 ![alt text](/.github/popup.png)
 
 ## Install
