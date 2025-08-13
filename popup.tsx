@@ -21,16 +21,16 @@ function App() {
 
 	const resetSettings = async () => {
 		if (!confirm('Are you sure you want to reset all settings to default?')) return;
-		setSaving(true);
+		void setSaving(true);
 		try {
-			setEnableReplyButton(DEFAULT_SETTINGS.enableReplyButton);
-			setEnableCopyButton(DEFAULT_SETTINGS.enableCopyButton);
-			setEnableSkipForm(DEFAULT_SETTINGS.enableSkipForm);
-			setReplyFormat(DEFAULT_SETTINGS.replyFormat);
+			void setEnableReplyButton(DEFAULT_SETTINGS.enableReplyButton);
+			void setEnableCopyButton(DEFAULT_SETTINGS.enableCopyButton);
+			void setEnableSkipForm(DEFAULT_SETTINGS.enableSkipForm);
+			void setReplyFormat(DEFAULT_SETTINGS.replyFormat);
 		} catch (error) {
 			console.error('Failed to reset settings:', error);
 		} finally {
-			setSaving(false);
+			void setSaving(false);
 		}
 	};
 
@@ -46,10 +46,10 @@ function App() {
 					<div className="setting">
 						<label className="toggle">
 							<input
-								type="checkbox"
 								checked={enableReplyButton}
-								onChange={(e) => setEnableReplyButton(e.target.checked)}
 								disabled={saving}
+								onChange={(e) => setEnableReplyButton(e.target.checked)}
+								type="checkbox"
 							/>
 							<span className="toggle-slider"></span>
 							<span className="toggle-label">Reply Button</span>
@@ -59,10 +59,10 @@ function App() {
 					<div className="setting">
 						<label className="toggle">
 							<input
-								type="checkbox"
 								checked={enableCopyButton}
-								onChange={(e) => setEnableCopyButton(e.target.checked)}
 								disabled={saving}
+								onChange={(e) => setEnableCopyButton(e.target.checked)}
+								type="checkbox"
 							/>
 							<span className="toggle-slider"></span>
 							<span className="toggle-label">Copy Button</span>
@@ -72,10 +72,10 @@ function App() {
 					<div className="setting">
 						<label className="toggle">
 							<input
-								type="checkbox"
 								checked={enableSkipForm}
-								onChange={(e) => setEnableSkipForm(e.target.checked)}
 								disabled={saving}
+								onChange={(e) => setEnableSkipForm(e.target.checked)}
+								type="checkbox"
 							/>
 							<span className="toggle-slider"></span>
 							<span className="toggle-label">Skip Forms</span>
@@ -90,24 +90,24 @@ function App() {
 							<div className="radio-group">
 								<label className="radio">
 									<input
-										type="radio"
-										name="replyFormat"
-										value="quote"
 										checked={replyFormat === 'quote'}
-										onChange={(e) => setReplyFormat(e.target.value as 'quote')}
 										disabled={saving}
+										name="replyFormat"
+										onChange={(e) => setReplyFormat(e.target.value as 'quote')}
+										type="radio"
+										value="quote"
 									/>
 									<span className="radio-label">Quote Reply</span>
 								</label>
 								<p className="setting-description">Format replies with quote</p>
 								<label className="radio">
 									<input
-										type="radio"
-										name="replyFormat"
-										value="codeblock"
 										checked={replyFormat === 'codeblock'}
-										onChange={(e) => setReplyFormat(e.target.value as 'codeblock')}
 										disabled={saving}
+										name="replyFormat"
+										onChange={(e) => setReplyFormat(e.target.value as 'codeblock')}
+										type="radio"
+										value="codeblock"
 									/>
 									<span className="radio-label">Codeblock Reply</span>
 								</label>
@@ -118,7 +118,7 @@ function App() {
 				)}
 			</div>
 			<div className="footer">
-				<button className="reset-btn" onClick={resetSettings} disabled={saving}>
+				<button className="reset-btn" disabled={saving} onClick={resetSettings} type="button">
 					Reset to Defaults
 				</button>
 				{saving && <span className="saving-indicator">Saving...</span>}

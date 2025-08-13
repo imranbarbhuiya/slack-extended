@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
   - sharp
+  - unrs-resolver

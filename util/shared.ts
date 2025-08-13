@@ -1,3 +1,4 @@
+/* eslint-disable no-implicit-coercion */
 // Shared utilities for Slack extension (action menu & context menu)
 // Move all shared functions, constants, and types here.
 
@@ -42,10 +43,9 @@ export function getAuthorInfo(messageEl: Element | null) {
 		const attrName = senderWrap ? senderWrap.getAttribute('data-stringify-text') : null;
 		if (attrName) name = attrName.trim();
 	}
-	let userId = null;
-	if (name) {
-		userId = NAME_TO_ID.get(name.toLowerCase()) || null;
-	}
+	let userId: string | null = null;
+	if (name) userId = NAME_TO_ID.get(name.toLowerCase()) ?? null;
+
 	return { userId, name };
 }
 
@@ -66,22 +66,19 @@ export function readMessageText(containerEl: Element | null) {
 	if (!containerEl) return '';
 	const preferred = containerEl.querySelector(SELECTORS.messageText);
 	let raw = '';
-	if (preferred && (preferred as HTMLElement).innerText) {
-		raw = (preferred as HTMLElement).innerText;
-	} else {
-		raw = containerEl.textContent || '';
-	}
+	if (preferred && (preferred as HTMLElement).innerText) raw = (preferred as HTMLElement).innerText;
+	else raw = containerEl.textContent || '';
+
 	return sanitizeMessageText(raw);
 }
 
 export function sanitizeMessageText(raw: string) {
 	if (!raw) return '';
 	let t = String(raw);
-	t = t.replace(/\u00A0/g, ' ');
-	t = t.replace(/\s*\(edited\)\s*$/gm, '');
-	t = t.replace(/\s*\(edited\)\s*/g, ' ');
-	t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
-	t = t.replace(/GIF https/g, ' https');
+	t = t.replaceAll('\u00A0', ' ');
+	t = t.replaceAll(/\s*\(edited\)\s*$/gm, '');
+	t = t.replaceAll(/\s*\(edited\)\s*/g, ' ');
+	t = t.replaceAll(/[\t ]+\n/g, '\n').replaceAll(/\n{3,}/g, '\n\n');
 	return t.trim();
 }
 
@@ -99,10 +96,8 @@ export function getActiveComposer(contextElement: Element | null = null): HTMLEl
 		);
 		if (threadPane) {
 			const threadComposer =
-				threadPane.querySelector(SELECTORS.composerPreferred) || threadPane.querySelector(SELECTORS.composerFallback);
-			if (threadComposer && isVisible(threadComposer)) {
-				return threadComposer as HTMLElement;
-			}
+				threadPane.querySelector(SELECTORS.composerPreferred) ?? threadPane.querySelector(SELECTORS.composerFallback);
+			if (threadComposer && isVisible(threadComposer)) return threadComposer as HTMLElement;
 		} else {
 			const allComposers = Array.from(
 				document.querySelectorAll(SELECTORS.composerPreferred + ', ' + SELECTORS.composerFallback),
@@ -112,9 +107,7 @@ export function getActiveComposer(contextElement: Element | null = null): HTMLEl
 				const inThreadPane = composer.closest(
 					'[data-qa="rhs_container"], [aria-label*="Thread"], [data-qa*="thread"], .p-threads_view__default_background',
 				);
-				if (!inThreadPane) {
-					return composer as HTMLElement;
-				}
+				if (!inThreadPane) return composer as HTMLElement;
 			}
 		}
 	}
@@ -124,13 +117,14 @@ export function getActiveComposer(contextElement: Element | null = null): HTMLEl
 		(ae as HTMLElement).matches &&
 		(ae as HTMLElement).matches(SELECTORS.composerFallback) &&
 		isVisible(ae as HTMLElement)
-	) {
+	)
 		return ae as HTMLElement;
-	}
+
 	const preferred = document.querySelector(SELECTORS.composerPreferred);
 	if (preferred && isVisible(preferred)) return preferred as HTMLElement;
 	const all = Array.from(document.querySelectorAll(SELECTORS.composerFallback));
 	const visible = all.find(isVisible);
+
 	return (visible as HTMLElement) || null;
 }
 
@@ -172,7 +166,9 @@ export function insertIntoComposer(text: string, contextElement: Element | null 
 }
 
 export function delay(ms: number) {
-	return new Promise((resolve) => setTimeout(resolve, ms));
+	return new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
 }
 
 export function sendKey(target: HTMLElement, key: string, code = key, keyCode = key === 'Enter' ? 13 : undefined) {
@@ -203,19 +199,14 @@ export function findTypeaheadOption(name: string, userId: string | null) {
 			if (userId) {
 				for (const attr of attrCandidates) {
 					const val = opt.getAttribute(attr);
-					if (val && val === userId) {
-						return opt;
-					}
-					if (opt.querySelector(`[${attr}="${userId}"]`)) {
-						return opt;
-					}
+					if (val && val === userId) return opt;
+
+					if (opt.querySelector(`[${attr}="${userId}"]`)) return opt;
 				}
 			}
 			const text = (opt.textContent || '').trim().toLowerCase();
 			if (!text) continue;
-			if (text === lower || text.startsWith(lower) || text.includes(lower)) {
-				return opt;
-			}
+			if (text === lower || text.startsWith(lower) || text.includes(lower)) return opt;
 		}
 	}
 	return null;
@@ -247,9 +238,7 @@ export async function createMentionEntity(
 		const anyList = document.querySelector(
 			'[role="listbox"], [data-qa*="typeahead"], .c-menu, .c-typeahead__popper, .ql-autocomplete__list',
 		);
-		if (anyList) {
-			sendKey(composer, 'Enter', 'Enter', 13);
-		}
+		if (anyList) sendKey(composer, 'Enter', 'Enter', 13);
 	}
 	return true;
 }

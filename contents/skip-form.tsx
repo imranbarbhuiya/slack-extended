@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-
 import { useStorage } from '@plasmohq/storage/hook';
+import { useEffect } from 'react';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
@@ -12,9 +11,7 @@ export default function SkipForm() {
 
 		const clickButton = () => {
 			const btn = document.querySelector<HTMLButtonElement>('.sendMessageBtn__xNfhN');
-			if (btn) {
-				btn.click();
-			}
+			if (btn) btn.click();
 		};
 		clickButton();
 		const observer = new MutationObserver(() => {
