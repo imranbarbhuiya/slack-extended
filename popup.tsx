@@ -1,4 +1,5 @@
 import { useStorage } from '@plasmohq/storage/hook';
+import { useEffect, useState } from 'react';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
@@ -6,7 +7,92 @@ import { version } from './package.json';
 
 import './popup.css';
 
+const HIGHLIGHT_THEMES = [
+	'a11y-dark',
+	'a11y-light',
+	'agate',
+	'an-old-hope',
+	'androidstudio',
+	'arduino-light',
+	'arta',
+	'ascetic',
+	'atom-one-dark',
+	'atom-one-dark-reasonable',
+	'atom-one-light',
+	'brown-paper',
+	'codepen-embed',
+	'color-brewer',
+	'dark',
+	'default',
+	'devibeans',
+	'docco',
+	'far',
+	'felipec',
+	'foundation',
+	'github',
+	'github-dark',
+	'github-dark-dimmed',
+	'googlecode',
+	'gradient-dark',
+	'gradient-light',
+	'grayscale',
+	'hybrid',
+	'idea',
+	'intellij-light',
+	'ir-black',
+	'kimbie-dark',
+	'kimbie-light',
+	'lightfair',
+	'magula',
+	'mono-blue',
+	'monokai',
+	'monokai-sublime',
+	'night-owl',
+	'nnfx-dark',
+	'nnfx-light',
+	'nord',
+	'obsidian',
+	'panda-syntax-dark',
+	'panda-syntax-light',
+	'paraiso-dark',
+	'paraiso-light',
+	'pojoaque',
+	'qtcreator-dark',
+	'qtcreator-light',
+	'rainbow',
+	'rose-pine',
+	'rose-pine-dawn',
+	'rose-pine-moon',
+	'school-book',
+	'shades-of-purple',
+	'srcery',
+	'stackoverflow-dark',
+	'stackoverflow-light',
+	'sunburst',
+	'tokyo-night-dark',
+	'tokyo-night-light',
+	'tomorrow-night-blue',
+	'tomorrow-night-bright',
+	'vs',
+	'vs2015',
+	'xcode',
+	'xt256',
+];
+
 function App() {
+	const [enableSyntaxHighlight, setEnableSyntaxHighlight] = useStorage<boolean>(
+		'enableSyntaxHighlight',
+		DEFAULT_SETTINGS.enableSyntaxHighlight ?? true,
+	);
+	const [syntaxHighlightTheme, setSyntaxHighlightTheme] = useStorage<string>(
+		'syntaxHighlightTheme',
+		DEFAULT_SETTINGS.syntaxHighlightTheme ?? 'github-dark',
+	);
+	const [themeOptions, setThemeOptions] = useState<string[]>([]);
+
+	useEffect(() => {
+		setThemeOptions(HIGHLIGHT_THEMES);
+	}, []);
 	const [enableReplyButton, setEnableReplyButton] = useStorage<boolean>(
 		'enableReplyButton',
 		DEFAULT_SETTINGS.enableReplyButton,
@@ -16,7 +102,14 @@ function App() {
 		DEFAULT_SETTINGS.enableCopyButton,
 	);
 	const [enableSkipForm, setEnableSkipForm] = useStorage<boolean>('enableSkipForm', DEFAULT_SETTINGS.enableSkipForm);
-	const [replyFormat, setReplyFormat] = useStorage<'quote' | 'codeblock'>('replyFormat', DEFAULT_SETTINGS.replyFormat);
+	const [replyFormat, setReplyFormat] = useStorage<'quote' | 'codeblock' | 'link'>(
+		'replyFormat',
+		DEFAULT_SETTINGS.replyFormat,
+	);
+	const [moveReplyToTop, setMoveReplyToTop] = useStorage<boolean>(
+		'moveReplyToTop',
+		DEFAULT_SETTINGS.moveReplyToTop ?? false,
+	);
 	const [saving, setSaving] = useStorage<boolean>('saving', false);
 
 	const resetSettings = async () => {
@@ -27,6 +120,7 @@ function App() {
 			void setEnableCopyButton(DEFAULT_SETTINGS.enableCopyButton);
 			void setEnableSkipForm(DEFAULT_SETTINGS.enableSkipForm);
 			void setReplyFormat(DEFAULT_SETTINGS.replyFormat);
+			void setMoveReplyToTop(DEFAULT_SETTINGS.moveReplyToTop ?? false);
 		} catch (error) {
 			console.error('Failed to reset settings:', error);
 		} finally {
@@ -42,6 +136,39 @@ function App() {
 			</div>
 			<div className="settings">
 				<div className="section">
+					<div className="setting">
+						<label className="toggle">
+							<input
+								checked={enableSyntaxHighlight}
+								disabled={saving}
+								onChange={(e) => setEnableSyntaxHighlight(e.target.checked)}
+								type="checkbox"
+							/>
+							<span className="toggle-slider"></span>
+							<span className="toggle-label">Syntax Highlight</span>
+						</label>
+						<p className="setting-description">Highlight code blocks in Slack messages</p>
+					</div>
+					{enableSyntaxHighlight && (
+						<div className="setting">
+							<label className="toggle-label" htmlFor="syntaxHighlightTheme" style={{ marginBottom: 4 }}>
+								Theme
+							</label>
+							<select
+								disabled={saving}
+								id="syntaxHighlightTheme"
+								onChange={(e) => setSyntaxHighlightTheme(e.target.value)}
+								style={{ width: '100%', marginTop: 4 }}
+								value={syntaxHighlightTheme}
+							>
+								{themeOptions.map((theme) => (
+									<option key={theme} value={theme}>
+										{theme}
+									</option>
+								))}
+							</select>
+						</div>
+					)}
 					<h3>Features</h3>
 					<div className="setting">
 						<label className="toggle">
@@ -82,6 +209,19 @@ function App() {
 						</label>
 						<p className="setting-description">Automatically skip Slack form dialogs</p>
 					</div>
+					<div className="setting">
+						<label className="toggle">
+							<input
+								checked={moveReplyToTop}
+								disabled={saving}
+								onChange={(e) => setMoveReplyToTop(e.target.checked)}
+								type="checkbox"
+							/>
+							<span className="toggle-slider"></span>
+							<span className="toggle-label">Move Reply To Top</span>
+						</label>
+						<p className="setting-description">Show the link embed at the top of the reply</p>
+					</div>
 				</div>
 				{enableReplyButton && (
 					<div className="section">
@@ -112,6 +252,18 @@ function App() {
 									<span className="radio-label">Codeblock Reply</span>
 								</label>
 								<p className="setting-description">Format replies with a code block</p>
+								<label className="radio">
+									<input
+										checked={replyFormat === 'link'}
+										disabled={saving}
+										name="replyFormat"
+										onChange={(e) => setReplyFormat(e.target.value as 'link')}
+										type="radio"
+										value="link"
+									/>
+									<span className="radio-label">Link Embed Reply</span>
+								</label>
+								<p className="setting-description">Format replies as a Slack embed with a link</p>
 							</div>
 						</div>
 					</div>

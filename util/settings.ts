@@ -1,6 +1,11 @@
+export type MentionType = 'quote' | 'codeblock' | 'link';
+
 export const DEFAULT_SETTINGS = {
 	enableReplyButton: true,
 	enableCopyButton: true,
 	enableSkipForm: false,
-	replyFormat: 'codeblock' as 'quote' | 'codeblock',
+	moveReplyToTop: false,
+	replyFormat: 'codeblock' as MentionType,
+	enableSyntaxHighlight: true,
+	syntaxHighlightTheme: 'github-dark',
 };

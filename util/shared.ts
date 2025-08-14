@@ -49,69 +49,9 @@ export function getAuthorInfo(messageEl: Element | null) {
 	return { userId, name };
 }
 
-export function getMessagePermalink(messageEl: Element | null): string {
-	if (!messageEl) return '';
-
-	// Strategy 1: Look for the message's own permalink (usually in timestamp area)
-	const permalinkSelectors = [
-		'a[data-message-permalink]',
-		'a.c-message_permalink',
-		'a[data-qa="message-timestamp"]',
-		'.c-timestamp a',
-		'a.c-timestamp',
-		'[data-qa="message-timestamp"] a',
-		'time a',
-	];
-
-	for (const selector of permalinkSelectors) {
-		const permalinkEl = messageEl.querySelector(selector);
-		if (permalinkEl && permalinkEl instanceof HTMLAnchorElement) {
-			console.log(`Found permalink using selector "${selector}":`, permalinkEl.href);
-			return permalinkEl.href;
-		}
-	}
-
-	// Strategy 2: Check for data attribute on the message container itself
-	const dataPermalink = messageEl.getAttribute('data-message-permalink');
-	if (dataPermalink) {
-		console.log('Found permalink in data attribute:', dataPermalink);
-		return dataPermalink;
-	}
-
-	// Strategy 3: Look for message ID and construct permalink manually
-	const messageId = messageEl.getAttribute('data-ts') ?? messageEl.getAttribute('data-message-ts');
-	console.log('Message ID found:', messageId);
-	if (messageId) {
-		const currentUrl = window.location.href;
-		console.log('Current URL:', currentUrl);
-		const channelRegex = /\/archives\/(?<channelId>[^/]+)/;
-		const channelMatch = channelRegex.exec(currentUrl);
-		if (channelMatch) {
-			const channelId = channelMatch.groups?.channelId;
-			if (channelId) {
-				const baseUrl = currentUrl.split('/archives/')[0];
-				const constructedLink = `${baseUrl}/archives/${channelId}/p${messageId.replace('.', '')}`;
-				console.log('Constructed permalink:', constructedLink);
-				return constructedLink;
-			}
-		}
-	}
-
-	// Strategy 4: Try to find any link that contains this message's timestamp
-	if (messageId) {
-		const timestampStr = messageId.replace('.', '');
-		const allAnchors = messageEl.querySelectorAll('a[href]');
-		console.log(`Searching ${allAnchors.length} anchors for timestamp ${timestampStr}`);
-		for (const anchor of allAnchors) {
-			const href = (anchor as HTMLAnchorElement).href;
-			if (href.includes(timestampStr) && href.includes('slack.com')) {
-				console.log('Found permalink with timestamp:', href);
-				return href;
-			}
-		}
-	}
-
-	return '';
+export function getPermalink(containerEl: Element): string {
+	const link = containerEl.querySelector('a.c-link.c-timestamp');
+	return (link && (link as HTMLAnchorElement).href) ?? '';
 }
 
 export function readSelectedTextWithin(containerEl: Element) {

@@ -1,8 +1,9 @@
 # Slack Extended
 
 A chrome extension that enhances the Slack web app with additional features.
-![alt text](/.github/quote.png)
-![alt text](/.github/popup.png)
+![quote](/.github/quote.png)
+![syntax highlight](/.github/syntax.png)
+![popup](/.github/popup.png)
 
 ## Install
 
@@ -43,12 +44,14 @@ If you prefer to install the extension by building it from source, follow these 
 
 All these features can be toggled on or off in the extension's popup menu.
 
-There are 2 types of reply ui:
+There are 3 types of reply ui:
 
-1. Quote reply:
-   ![alt text](/.github/quote.png)
-2. Codeblock reply:
-   ![alt text](/.github/codeblock.png)
+1. Quote reply: Add a quote reply to the message.
+   ![quote](/.github/quote.png)
+2. Codeblock reply: Adds a code block reply to the message.
+   ![codeblock](/.github/codeblock.png)
+3. Link reply: Adds a link reply to the message with slack embed link preview.
+   ![link](/.github/link.png)
 
 ## Acknowledgements
 
