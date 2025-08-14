@@ -15,6 +15,13 @@ import { useEffect } from 'react';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
+import type { PlasmoCSConfig } from '~node_modules/plasmo/dist/type';
+
+export const config: PlasmoCSConfig = {
+	matches: ['https://app.slack.com/*', 'https://*.slack.com/*'],
+	run_at: 'document_idle',
+};
+
 hljs.registerLanguage('javascript', javascript);
 hljs.registerLanguage('typescript', typescript);
 hljs.registerLanguage('json', json);
