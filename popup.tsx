@@ -1,4 +1,6 @@
 import { useStorage } from '@plasmohq/storage/hook';
+import { useEffect, useState } from 'react';
+import { bundledThemes } from 'shiki';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
@@ -7,6 +9,19 @@ import { version } from './package.json';
 import './popup.css';
 
 function App() {
+	const [enableSyntaxHighlight, setEnableSyntaxHighlight] = useStorage<boolean>(
+		'enableSyntaxHighlight',
+		DEFAULT_SETTINGS.enableSyntaxHighlight ?? true,
+	);
+	const [syntaxHighlightTheme, setSyntaxHighlightTheme] = useStorage<string>(
+		'syntaxHighlightTheme',
+		DEFAULT_SETTINGS.syntaxHighlightTheme ?? 'github-dark',
+	);
+	const [themeOptions, setThemeOptions] = useState<string[]>([]);
+
+	useEffect(() => {
+		setThemeOptions(Object.keys(bundledThemes));
+	}, []);
 	const [enableReplyButton, setEnableReplyButton] = useStorage<boolean>(
 		'enableReplyButton',
 		DEFAULT_SETTINGS.enableReplyButton,
@@ -50,6 +65,39 @@ function App() {
 			</div>
 			<div className="settings">
 				<div className="section">
+					<div className="setting">
+						<label className="toggle">
+							<input
+								checked={enableSyntaxHighlight}
+								disabled={saving}
+								onChange={(e) => setEnableSyntaxHighlight(e.target.checked)}
+								type="checkbox"
+							/>
+							<span className="toggle-slider"></span>
+							<span className="toggle-label">Syntax Highlight</span>
+						</label>
+						<p className="setting-description">Highlight code blocks in Slack messages</p>
+					</div>
+					{enableSyntaxHighlight && (
+						<div className="setting">
+							<label className="toggle-label" htmlFor="syntaxHighlightTheme" style={{ marginBottom: 4 }}>
+								Theme
+							</label>
+							<select
+								disabled={saving}
+								id="syntaxHighlightTheme"
+								onChange={(e) => setSyntaxHighlightTheme(e.target.value)}
+								style={{ width: '100%', marginTop: 4 }}
+								value={syntaxHighlightTheme}
+							>
+								{themeOptions.map((theme) => (
+									<option key={theme} value={theme}>
+										{theme}
+									</option>
+								))}
+							</select>
+						</div>
+					)}
 					<h3>Features</h3>
 					<div className="setting">
 						<label className="toggle">

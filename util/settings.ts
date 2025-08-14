@@ -6,4 +6,6 @@ export const DEFAULT_SETTINGS = {
 	enableSkipForm: false,
 	moveReplyToTop: false,
 	replyFormat: 'codeblock' as MentionType,
+	enableSyntaxHighlight: true,
+	syntaxHighlightTheme: 'github-dark',
 };
