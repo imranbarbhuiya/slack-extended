@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
-import type { PlasmoCSConfig } from '~node_modules/plasmo/dist/type';
+import type { PlasmoCSConfig } from 'plasmo';
 
 export const config: PlasmoCSConfig = {
 	matches: ['https://app.slack.com/*', 'https://*.slack.com/*'],
