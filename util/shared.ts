@@ -87,6 +87,11 @@ export function sanitizeMessageText(raw: string) {
 	return t.trim();
 }
 
+export function escapeMentions(text: string): string {
+	if (!text) return '';
+	return text.replaceAll(/@(?<username>\w[\w.-]*)/g, '@\u200B$1');
+}
+
 export function isVisible(el: Element | null) {
 	if (!el) return false;
 	const rect = el.getBoundingClientRect();
