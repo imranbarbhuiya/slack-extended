@@ -1,12 +1,83 @@
 import { useStorage } from '@plasmohq/storage/hook';
 import { useEffect, useState } from 'react';
-import { bundledThemes } from 'shiki';
 
 import { DEFAULT_SETTINGS } from '~util/settings';
 
 import { version } from './package.json';
 
 import './popup.css';
+
+const HIGHLIGHT_THEMES = [
+	'a11y-dark',
+	'a11y-light',
+	'agate',
+	'an-old-hope',
+	'androidstudio',
+	'arduino-light',
+	'arta',
+	'ascetic',
+	'atom-one-dark',
+	'atom-one-dark-reasonable',
+	'atom-one-light',
+	'brown-paper',
+	'codepen-embed',
+	'color-brewer',
+	'dark',
+	'default',
+	'devibeans',
+	'docco',
+	'far',
+	'felipec',
+	'foundation',
+	'github',
+	'github-dark',
+	'github-dark-dimmed',
+	'googlecode',
+	'gradient-dark',
+	'gradient-light',
+	'grayscale',
+	'hybrid',
+	'idea',
+	'intellij-light',
+	'ir-black',
+	'kimbie-dark',
+	'kimbie-light',
+	'lightfair',
+	'magula',
+	'mono-blue',
+	'monokai',
+	'monokai-sublime',
+	'night-owl',
+	'nnfx-dark',
+	'nnfx-light',
+	'nord',
+	'obsidian',
+	'panda-syntax-dark',
+	'panda-syntax-light',
+	'paraiso-dark',
+	'paraiso-light',
+	'pojoaque',
+	'qtcreator-dark',
+	'qtcreator-light',
+	'rainbow',
+	'rose-pine',
+	'rose-pine-dawn',
+	'rose-pine-moon',
+	'school-book',
+	'shades-of-purple',
+	'srcery',
+	'stackoverflow-dark',
+	'stackoverflow-light',
+	'sunburst',
+	'tokyo-night-dark',
+	'tokyo-night-light',
+	'tomorrow-night-blue',
+	'tomorrow-night-bright',
+	'vs',
+	'vs2015',
+	'xcode',
+	'xt256',
+];
 
 function App() {
 	const [enableSyntaxHighlight, setEnableSyntaxHighlight] = useStorage<boolean>(
@@ -20,7 +91,7 @@ function App() {
 	const [themeOptions, setThemeOptions] = useState<string[]>([]);
 
 	useEffect(() => {
-		setThemeOptions(Object.keys(bundledThemes));
+		setThemeOptions(HIGHLIGHT_THEMES);
 	}, []);
 	const [enableReplyButton, setEnableReplyButton] = useStorage<boolean>(
 		'enableReplyButton',
@@ -138,6 +209,19 @@ function App() {
 						</label>
 						<p className="setting-description">Automatically skip Slack form dialogs</p>
 					</div>
+					<div className="setting">
+						<label className="toggle">
+							<input
+								checked={moveReplyToTop}
+								disabled={saving}
+								onChange={(e) => setMoveReplyToTop(e.target.checked)}
+								type="checkbox"
+							/>
+							<span className="toggle-slider"></span>
+							<span className="toggle-label">Move Reply To Top</span>
+						</label>
+						<p className="setting-description">Show the link embed at the top of the reply</p>
+					</div>
 				</div>
 				{enableReplyButton && (
 					<div className="section">
@@ -182,21 +266,6 @@ function App() {
 								<p className="setting-description">Format replies as a Slack embed with a link</p>
 							</div>
 						</div>
-						{replyFormat === 'link' && (
-							<div className="setting">
-								<label className="toggle">
-									<input
-										checked={moveReplyToTop}
-										disabled={saving}
-										onChange={(e) => setMoveReplyToTop(e.target.checked)}
-										type="checkbox"
-									/>
-									<span className="toggle-slider"></span>
-									<span className="toggle-label">Move Reply To Top</span>
-								</label>
-								<p className="setting-description">Show the link embed at the top of the reply</p>
-							</div>
-						)}
 					</div>
 				)}
 			</div>

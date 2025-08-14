@@ -2,6 +2,7 @@
 
 A chrome extension that enhances the Slack web app with additional features.
 ![quote](/.github/quote.png)
+![syntax highlight](/.github/syntax.png)
 ![popup](/.github/popup.png)
 
 ## Install
