@@ -8,6 +8,7 @@ import {
 	createMentionEntity,
 	escapeMentions,
 	findClosestMessageContainer,
+	getActiveComposer,
 	getAuthorInfo,
 	getPermalink,
 	insertIntoComposer,
@@ -57,8 +58,8 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: MentionType)
 			if (permalink) {
 				insertIntoComposer(`[View Message](${permalink})\n\n`, contextElement);
 
-				const composer =
-					document.querySelector('[data-qa="slack_kit_composer"]') ?? document.querySelector('[role="textbox"]');
+				const composer = getActiveComposer(contextElement);
+
 				if (composer) {
 					const observer = new MutationObserver((mutations) => {
 						for (const mutation of mutations) {
