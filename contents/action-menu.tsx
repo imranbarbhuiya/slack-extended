@@ -6,8 +6,10 @@ import { DEFAULT_SETTINGS } from '../util/settings';
 import {
 	ATTR,
 	createMentionEntity,
+	escapeMentions,
 	findClosestMessageContainer,
 	getAuthorInfo,
+	getMessagePermalink,
 	insertIntoComposer,
 	isElement,
 	readMessageText,
@@ -33,12 +35,14 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'c
 		if (!fullText) return;
 		const contextElement = messageEl;
 
-		const maxLineLength = 100;
+		const messageLink = getMessagePermalink(messageEl);
 
+		const maxLineLength = 100;
 		let line = fullText.trim().split(/\r?\n/).join(' ');
 		if (!line.length) return;
-
 		if (line.length > maxLineLength) line = line.slice(0, maxLineLength) + '...';
+
+		line = escapeMentions(line);
 
 		if (replyFormat === 'codeblock') {
 			insertIntoComposer('▸ Replying to ', contextElement);
@@ -48,9 +52,38 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: 'quote' | 'c
 			insertIntoComposer('\n```\n\n', contextElement);
 		} else {
 			insertIntoComposer('> ', contextElement);
-			await createMentionEntity(displayName, userId, contextElement);
 			insertIntoComposer(line + '\n', contextElement);
-			insertIntoComposer('\n', contextElement);
+			if (messageLink) {
+				insertIntoComposer(`[View Message](${messageLink})\n\n`, contextElement);
+
+				const composer =
+					document.querySelector('[data-qa="slack_kit_composer"]') ?? document.querySelector('[role="textbox"]');
+				if (composer) {
+					const observer = new MutationObserver((mutations) => {
+						for (const mutation of mutations) {
+							if (mutation.addedNodes.length > 0) {
+								const removeBtn = document.querySelector(
+									'button.p-draft_unfurls__remove_btn[aria-label="Remove link preview"]',
+								);
+								if (removeBtn && removeBtn instanceof HTMLButtonElement) {
+									removeBtn.click();
+									observer.disconnect();
+									return;
+								}
+							}
+						}
+					});
+
+					observer.observe(document.body, {
+						childList: true,
+						subtree: true,
+					});
+
+					setTimeout(() => observer.disconnect(), 5_000);
+				}
+			}
+			await createMentionEntity(displayName, userId, contextElement);
+			insertIntoComposer(' ', contextElement);
 		}
 	} catch {}
 }
