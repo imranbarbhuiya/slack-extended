@@ -35,8 +35,6 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: MentionType)
 		if (!fullText) return;
 		const contextElement = messageEl;
 
-		const messageLink = getPermalink(messageEl);
-
 		const maxLineLength = 100;
 		let line = fullText.trim().split(/\r?\n/).join(' ');
 		if (!line.length) return;
@@ -52,11 +50,12 @@ async function handleReplyClick(actionsGroup: Element, replyFormat: MentionType)
 			insertIntoComposer(line, contextElement);
 			insertIntoComposer('\n```\n\n', contextElement);
 		} else {
+			const permalink = getPermalink(messageEl);
 			line = escapeMentions(line);
 			insertIntoComposer('> ', contextElement);
 			insertIntoComposer(line + '\n', contextElement);
-			if (messageLink) {
-				insertIntoComposer(`[View Message](${messageLink})\n\n`, contextElement);
+			if (permalink) {
+				insertIntoComposer(`[View Message](${permalink})\n\n`, contextElement);
 
 				const composer =
 					document.querySelector('[data-qa="slack_kit_composer"]') ?? document.querySelector('[role="textbox"]');
