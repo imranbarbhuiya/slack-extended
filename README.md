@@ -7,6 +7,9 @@ A chrome extension that enhances the Slack web app with additional features.
 
 ## Install
 
+[link-chrome]: https://chrome.google.com/webstore/detail/slack-extended/nfpkgencphfibchjlcfkgikamdiekepp 'Version published on Chrome Web Store'
+[link-firefox]: https://addons.mozilla.org/firefox/addon/slack-extended/ 'Version published on Mozilla Add-ons'
+
 You can one click install the extension from the [Chrome Web Store](https://chrome.google.com/webstore/detail/slack-extended/nfpkgencphfibchjlcfkgikamdiekepp).
 
 ### Manual Installation
@@ -38,9 +41,11 @@ If you prefer to install the extension by building it from source, follow these 
 > **Note:** You must have `Format messages with markup` enabled in Slack settings.
 > Click on your profile picture in the bottom left corner, go to `Preferences`, then `Advanced`, and enable `Format messages with markup`.
 
-1. Reply Button: Adds a reply button to each message for quick replies.
-2. Copy Button: Adds a copy button to each message for easy copying the message text with markdown formatting.
-3. Hide forms and always show input box.
+1. **Syntax Highlighting**: Adds syntax highlighting to code blocks in messages.
+   ![syntax highlight](/.github/syntax.png)
+2. Reply Button: Adds a reply button to each message for quick replies.
+3. Copy Button: Adds a copy button to each message for easy copying the message text with markdown formatting.
+4. Hide forms and always show input box.
 
 All these features can be toggled on or off in the extension's popup menu.
 

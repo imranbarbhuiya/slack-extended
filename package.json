@@ -1,7 +1,7 @@
 {
 	"name": "slack-extended",
 	"displayName": "Slack extended",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A chrome extension to add additional features to slack",
 	"author": "Parbez <imranbarbhuiya.fsd@gmail.com>",
 	"scripts": {
